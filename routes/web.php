@@ -19,7 +19,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);*/
-    redirect()->route('dashboard');
+    return redirect('/dashboard');
 });
 //ruta para el cron de asistencias
 Route::get('/Asistencias/cron', [AsistenciaController::class, 'AsistenciaCron'])->name('asistencia.cron'); // NUEVA
