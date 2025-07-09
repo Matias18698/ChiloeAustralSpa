@@ -39,25 +39,45 @@ class TrabajadorController extends Controller
     /**
      * Almacenar un nuevo trabajador en la base de datos.
      */
-    public function store(Request $request)
-    {
-        $data = $request->except('avatar');
-        
-        
-        if ($request->hasFile('avatar')) {
-            $data['avatar'] = $this->handleAvatarUpload($request);
-        }
+public function store(Request $request)
+{
+    // ✅ Validar los datos
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'apellido' => 'required|string|max:255',
+        'rut' => 'required|string|unique:trabajadores',
+        'fecha_nacimiento' => 'required|date',
+        'estado_civil' => 'required|string',
+        'nacionalidad' => 'required|string',
+        'direccion' => 'required|string',
+        'comuna' => 'required|string',
+        'email' => 'required|email|unique:trabajadores',
+        'telefono' => 'required|string',
+        'afp' => 'required|string',
+        'cargo' => 'required|string',
+        'tamaño_ropa' => 'required|string',
+        'tipo_contrato' => 'required|string',
+        'sueldo_real' => 'required|numeric',
+        'sueldo_liquidacion' => 'required|numeric',
+        'embarcacion_id' => 'nullable|exists:embarcaciones,id',
+        'avatar' => 'nullable|image|max:2048',
+    ]);
 
-        $data['user_id'] = Auth::id(); // Asignar el ID del usuario autenticado
-        
-        try {
-            Trabajador::create($data);
-            return redirect()->route('trabajador.index')->with('success', 'Trabajador creado correctamente.');
-        } catch (\Exception $e) {
-            Log::error('Error al crear trabajador: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Hubo un problema al crear el trabajador.']);
-        }
+    // ✅ Manejo del avatar
+    if ($request->hasFile('avatar')) {
+        $validated['avatar'] = $this->handleAvatarUpload($request);
     }
+
+    $validated['user_id'] = Auth::id();
+
+    try {
+        Trabajador::create($validated);
+        return redirect()->route('trabajador.index')->with('success', 'Trabajador creado correctamente.');
+    } catch (\Exception $e) {
+        Log::error('Error al crear trabajador: ' . $e->getMessage());
+        return back()->withErrors(['error' => 'Hubo un problema al crear el trabajador.']);
+    }
+}
 
     /**
      * Mostrar el formulario para editar un trabajador existente.

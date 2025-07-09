@@ -30,7 +30,7 @@ return new class extends Migration {
             $table->decimal('sueldo_real', 10, 2);
             $table->decimal('sueldo_liquidacion', 10, 2);
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relación con usuarios
-            $table->foreignId('embarcacion_id')->constrained('embarcaciones')->onDelete('cascade'); // Relación con embarcaciones
+            $table->foreignId('embarcacion_id')->nullable()->constrained('embarcaciones')->onDelete('cascade'); // Relación con embarcaciones
 
 
 
