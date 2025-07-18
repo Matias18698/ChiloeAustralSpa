@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Trabajador;
 use App\Models\Asistencia;
 use App\Models\Embarcacion;
+
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -14,36 +15,40 @@ class AsistenciaController extends Controller
     /**
      * Muestra la lista de trabajadores y sus asistencias para un mes y año específicos.
      */
-    public function index(Request $request)
-    {
-        $mes = $request->input('mes', Carbon::now('America/Santiago')->month);
-        $año = $request->input('año', Carbon::now('America/Santiago')->year);
+public function index(Request $request)
+{
+    $mes = $request->input('mes', Carbon::now('America/Santiago')->month);
+    $año = $request->input('año', Carbon::now('America/Santiago')->year);
 
-        $trabajadores = Trabajador::with(['asistencias' => function ($query) use ($mes, $año) {
-            $query->whereMonth('fecha', $mes)
-                  ->whereYear('fecha', $año);
-        }])->get()
-          ->sortBy('nombre')
-          ->map(function ($trabajador) {
-              $asistencias = $trabajador->asistencias->keyBy(fn($asistencia) =>
-                  Carbon::parse($asistencia->fecha)->format('Y-m-d')
-              )->map(fn($asistencia) => $asistencia->tipo_asistencia);
+    $trabajadores = Trabajador::with(['embarcacion', 'asistencias' => function ($query) use ($mes, $año) {
+        $query->whereMonth('fecha', $mes)
+              ->whereYear('fecha', $año);
+    }])->get()
+      ->sortBy('nombre')
+      ->map(function ($trabajador) {
+          $asistencias = $trabajador->asistencias->keyBy(fn($asistencia) =>
+              Carbon::parse($asistencia->fecha)->format('Y-m-d')
+          )->map(fn($asistencia) => $asistencia->tipo_asistencia);
 
-              return [
-                  'id' => $trabajador->id,
-                  'embarcacion'=> $trabajador->embarcacion ? $trabajador->embarcacion->nombre : null,
-                  'nombre' => $trabajador->nombre,
-                  'cargo' => $trabajador->cargo,
-                  'asistencias' => $asistencias,
-              ];
-          })->values();
+          return [
+              'id' => $trabajador->id,
+              'nombre' => $trabajador->nombre,
+              'apellido' => $trabajador->apellido,  // Agregado para que Vue lo use
+              'cargo' => $trabajador->cargo,
+              'embarcacion' => $trabajador->embarcacion ? $trabajador->embarcacion->nombre : 'Sin asignar',  // Mejor mostrar "Sin asignar"
+              'embarcacion_id' => $trabajador->embarcacion ? $trabajador->embarcacion->id : null,
+              'asistencias' => $asistencias,
+          ];
+      })->values();
 
-        return Inertia::render('Asistencia/Index', [
-            'trabajadores' => $trabajadores,
-            'mes' => intval($mes),
-            'año' => intval($año),
-        ]);
-    }
+    return Inertia::render('Asistencia/Index', [
+        'trabajadores' => $trabajadores,
+        'embarcaciones' => Embarcacion::all(),
+        'mes' => intval($mes),
+        'año' => intval($año),
+    ]);
+}
+
 
     public function create()
     {
@@ -57,7 +62,6 @@ public function store(Request $request)
 {
     $validated = $request->validate([
         'trabajador_id' => 'required|exists:trabajadores,id',
-        'embarcacion_id' => 'required|exists:embarcaciones,id',
         'fecha' => 'required|date',
         'tipo_asistencia' => 'required|in:D,TR,L,F',
     ]);
@@ -145,7 +149,6 @@ public function store(Request $request)
     {
         $validated = $request->validate([
             'rut' => 'required|string',
-            'embarcacion_id' => 'required|exists:embarcaciones,id',
             'tipo_asistencia' => 'required|in:D,TR,L,F',
         ]);
 
@@ -157,7 +160,7 @@ public function store(Request $request)
 
         Asistencia::create([
             'trabajador_id' => $trabajador->id,
-            'embarcacion_id' => $validated['embarcacion_id'],
+            'embarcacion_id' => $trabajador->embarcacion_id,
             'fecha' => Carbon::now('America/Santiago')->toDateString(),
             'tipo_asistencia' => $validated['tipo_asistencia'],
         ]);
@@ -168,6 +171,13 @@ public function store(Request $request)
     public function manual()
     {
         return Inertia::render('Asistencia/Manual', [
+            'trabajadores' => Trabajador::orderBy('nombre')->get(),
+            'embarcaciones' => Embarcacion::orderBy('nombre')->get(),
+        ]);
+    }
+    public function bajada()
+    {
+        return Inertia::render('Asistencia/Bajada', [
             'trabajadores' => Trabajador::orderBy('nombre')->get(),
             'embarcaciones' => Embarcacion::orderBy('nombre')->get(),
         ]);

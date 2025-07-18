@@ -34,6 +34,7 @@ const asistencias = computed(() =>
       trabajador: trabajador.nombre,
       cargo: trabajador.cargo,
       embarcacion: embarcacion.nombre,
+      embarcacion_id: embarcacion.id
     }))
 );
 
@@ -57,6 +58,8 @@ watch([selectedMes, selectedAño], async ([newMes, newAño]) => {
 
 const redirectToCreateAsistencia = () => router.visit(route('asistencia.create'));
 const redirectToManualAsistencia = () => router.visit(route('asistencia.manual'));
+const redirectToBajadaAsistencia = () => router.visit(route('asistencia.bajada'));
+
 </script>
 
 <template>
@@ -87,6 +90,12 @@ const redirectToManualAsistencia = () => router.visit(route('asistencia.manual')
                 class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 font-medium shadow-md transition-all"
               >
                 📝 Asistencia Manual
+              </button>
+              <button
+                @click="redirectToBajadaAsistencia"
+                class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md px-4 py-2 font-medium shadow-md transition-all"
+              >
+                📥 Crear Descanso
               </button>
             </div>
           </div>
@@ -130,6 +139,7 @@ const redirectToManualAsistencia = () => router.visit(route('asistencia.manual')
           >
             <CalendarioAsistencia
               :trabajadores="trabajadoresOrdenados"
+              :embarcaciones="props.embarcaciones || []"
               :mes="selectedMes"
               :año="selectedAño"
               :asistencias="asistencias"

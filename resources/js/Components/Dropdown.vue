@@ -16,6 +16,8 @@ const props = defineProps({
     },
 });
 
+const open = ref(false);
+
 const closeOnEscape = (e) => {
     if (open.value && e.key === 'Escape') {
         open.value = false;
@@ -32,7 +34,7 @@ const widthClass = computed(() => {
         '80': 'w-80',
         'full': 'w-full',
     };
-    return widthMap[props.width] || 'w-48'; // Default to 'w-48'
+    return widthMap[props.width] || 'w-48';
 });
 
 const alignmentClasses = computed(() => {
@@ -44,23 +46,23 @@ const alignmentClasses = computed(() => {
         return 'origin-top';
     }
 });
-
-const open = ref(false);
 </script>
 
 <template>
     <div class="relative">
+        <!-- Botón disparador -->
         <div @click="open = !open">
             <slot name="trigger" />
         </div>
 
-        <!-- Overlay Fullscreen -->
+        <!-- Fondo oscuro al abrir -->
         <div
             v-show="open"
             class="fixed inset-0 z-40 bg-black bg-opacity-30"
             @click="open = false"
         ></div>
 
+        <!-- Contenido del dropdown -->
         <Transition
             enter-active-class="transition ease-out duration-200"
             enter-from-class="opacity-0 scale-95"
@@ -71,7 +73,7 @@ const open = ref(false);
         >
             <div
                 v-show="open"
-                class="absolute z-50 mt-2 rounded-md shadow-lg"
+                class="dropdown-content absolute z-50 mt-2 rounded-md shadow-lg"
                 :class="[widthClass, alignmentClasses]"
                 style="display: none"
                 @click="open = false"
@@ -88,15 +90,14 @@ const open = ref(false);
 </template>
 
 <style scoped>
-/* Styles for mobile responsiveness */
+/* ✅ SOLO para el dropdown en móviles */
 @media (max-width: 640px) {
-    .absolute {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
+    .dropdown-content {
+        left: auto !important;
+        right: 1rem !important;
+        width: auto !important;
+        max-width: 12rem; /* Mantiene el tamaño equivalente a w-48 */
     }
 }
+
 </style>

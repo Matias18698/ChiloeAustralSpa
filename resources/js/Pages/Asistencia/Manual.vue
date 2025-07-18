@@ -17,7 +17,7 @@ const form = useForm({
 })
 
 const tipos = [
-  { value: 'D', label: 'Disponible' },
+  { value: 'D', label: 'Descanso' },
   { value: 'TR', label: 'Trabajo' },
   { value: 'L', label: 'Licencia' },
   { value: 'F', label: 'Falta' }
@@ -96,15 +96,7 @@ watch(trabajadorInput, (val) => {
             <p v-if="form.errors.trabajador_id" class="text-red-500 text-sm mt-1">{{ form.errors.trabajador_id }}</p>
           </div>
 
-          <!-- Embarcación -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Embarcación</label>
-            <select v-model="form.embarcacion_id" class="form-select w-full rounded border-gray-300">
-              <option disabled value="">Selecciona una embarcación</option>
-              <option v-for="e in embarcaciones" :key="e.id" :value="e.id">{{ e.nombre }}</option>
-            </select>
-            <p v-if="form.errors.embarcacion_id" class="text-red-500 text-sm mt-1">{{ form.errors.embarcacion_id }}</p>
-          </div>
+
 
           <!-- Fecha -->
           <div>

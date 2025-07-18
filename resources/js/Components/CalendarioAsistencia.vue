@@ -6,51 +6,49 @@ import { defineProps } from 'vue';
 // Props
 const props = defineProps({
   trabajadores: Array,
+  embarcaciones: Array,
   mes: Number,
   año: Number,
 });
 
-// Rellenar ceros
+// Utilidad: rellenar con ceros
 const pad = (n) => n.toString().padStart(2, '0');
 
-// Días del mes
+// Días del mes actual
 const diasDelMes = computed(() => {
   const fecha = new Date(props.año, props.mes, 0);
   return Array.from({ length: fecha.getDate() }, (_, i) => i + 1);
 });
 
-// Nombre del mes en mayúsculas
+// Nombre del mes en texto
 const mesNombre = computed(() =>
   new Date(props.año, props.mes - 1).toLocaleString('default', {
-    month: 'long'
+    month: 'long',
   }).toUpperCase()
 );
 
-// Estilos para cada tipo de asistencia
+// Estilos por tipo de asistencia
 const getEstiloAsistencia = (tipo) => {
   const estilos = {
     D: 'bg-green-100 text-green-800 border-green-300',
     TR: 'bg-blue-100 text-blue-800 border-blue-300',
     L: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    F: 'bg-red-100 text-red-800 border-red-300'
+    F: 'bg-red-100 text-red-800 border-red-300',
   };
   return estilos[tipo] || 'bg-gray-100 text-gray-400 border-gray-300';
 };
 
-// Función para obtener la asistencia de un trabajador en un día dado
+// Asistencia de trabajador por día
 const obtenerAsistencia = (trabajador, dia) => {
   const fecha = `${props.año}-${pad(props.mes)}-${pad(dia)}`;
-  if (trabajador.asistencias && trabajador.asistencias[fecha]) {
-    return trabajador.asistencias[fecha];
-  }
-  return null;
+  return trabajador.asistencias?.[fecha] || null;
 };
 
-// Contar días trabajados (TR)
+// Contar días de trabajo real (TR)
 const contarDiasTR = (asistencias) =>
   diasDelMes.value.reduce((total, dia) => {
     const fecha = `${props.año}-${pad(props.mes)}-${pad(dia)}`;
-    return asistencias && asistencias[fecha] === 'TR' ? total + 1 : total;
+    return asistencias?.[fecha] === 'TR' ? total + 1 : total;
   }, 0);
 
 // Exportación PDF
@@ -65,14 +63,14 @@ const exportarCalendarioPDF = async () => {
   const options = {
     margin: -0.1,
     filename: `calendario-${new Date().toISOString().slice(0, 10)}.pdf`,
-    image: { type: 'jpeg', quality: 0.80 },
+    image: { type: 'jpeg', quality: 0.8 },
     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#fff' },
     jsPDF: {
       unit: 'in',
       format: [8.5, 16],
-      orientation: 'landscape'
+      orientation: 'landscape',
     },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
   };
 
   await html2pdf().set(options).from(element).save();
@@ -81,7 +79,7 @@ const exportarCalendarioPDF = async () => {
 
 // Paginación
 const currentPage = ref(1);
-const itemsPerPage = 3;
+const itemsPerPage = 10; // Cambia este valor según tus necesidades
 
 const totalPages = computed(() =>
   Math.ceil(props.trabajadores.length / itemsPerPage)
@@ -92,10 +90,9 @@ const trabajadoresPaginados = computed(() => {
   return props.trabajadores.slice(start, start + itemsPerPage);
 });
 
-// Mostrar todos o sólo paginados según exportación PDF
+// Mostrar todos para PDF o solo paginados
 const trabajadoresVisibles = computed(() =>
   exportandoPDF.value ? props.trabajadores : trabajadoresPaginados.value
-  
 );
 
 const irPagina = (pagina) => {
@@ -103,18 +100,22 @@ const irPagina = (pagina) => {
     currentPage.value = pagina;
   }
 };
+const obtenerNombreEmbarcacion = (trabajador) => {
+  if (!trabajador.embarcacion_id) return 'Sin asignar';
+  const embarcacion = props.embarcaciones.find(e => e.id === trabajador.embarcacion_id);
+  return embarcacion?.nombre || 'Sin asignar';
+};
+
+
+
 
 </script>
-
 
 
 <template>
   <div class="p-4 space-y-6 overflow-auto">
     <!-- Encabezado -->
-    <div
-      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-      v-if="!exportandoPDF"
-    >
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4" v-if="!exportandoPDF">
       <h2 class="text-2xl font-bold text-blue-800">
         📅 Calendario de Asistencia - {{ mesNombre }} {{ año }}
       </h2>
@@ -127,48 +128,32 @@ const irPagina = (pagina) => {
     </div>
 
     <!-- Tabla calendario -->
-    <div
-      id="calendario-pdf"
-      class="overflow-x-auto rounded-xl shadow ring-1 ring-blue-200 bg-white p-4"
-    >
+    <div id="calendario-pdf" class="overflow-x-auto rounded-xl shadow ring-1 ring-blue-200 bg-white p-4">
       <table class="min-w-full border-collapse text-sm text-gray-800">
-        <thead
-          class="bg-blue-50 border-b border-blue-200 text-xs uppercase sticky top-0 z-10"
-        >
+        <thead class="bg-blue-50 border-b border-blue-200 text-xs uppercase sticky top-0 z-10">
           <tr>
             <th class="px-4 py-3 text-left">Trabajador</th>
             <th class="px-4 py-3 text-left">Cargo</th>
-            <th class="px-4 py-3 text-left">Embarcación</th> 
-            <th
-              v-for="dia in diasDelMes"
-              :key="dia"
-              class="px-2 py-3 text-center text-gray-600"
-            >
+            <th class="px-4 py-3 text-left">Embarcación</th>
+            <th v-for="dia in diasDelMes" :key="dia" class="px-2 py-3 text-center text-gray-600">
               {{ dia }}
             </th>
             <th class="px-4 py-3 text-center text-blue-700">Total TR</th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="trabajador in trabajadoresVisibles"
-            :key="trabajador.id"
-            class="hover:bg-blue-50 transition-colors"
-          >
-            <td class="px-4 py-2 text-gray-600 semibold whitespace-nowrap">
-              {{ trabajador.nombre }}, {{ trabajador.apellido }}
+          <tr v-for="trabajador in trabajadoresVisibles" :key="trabajador.id" class="hover:bg-blue-50 transition-colors">
+            <td class="px-4 py-2 text-gray-600 font-semibold whitespace-nowrap">
+              {{ trabajador.nombre }} {{ trabajador.apellido || '' }}
             </td>
             <td class="px-4 py-2 text-gray-600 whitespace-nowrap">
-              {{ trabajador.cargo }}
+              {{ trabajador.cargo || 'Sin asignar' }}
             </td>
-              <td class="px-4 py-2 text-gray-600 whitespace-nowrap">
-                {{ trabajador.embarcacion }}
-              </td>
-            <td
-              v-for="dia in diasDelMes"
-              :key="dia"
-              class="px-1 py-1 text-center"
-            >
+            <td class="px-4 py-2 text-gray-600 whitespace-nowrap">
+              {{ obtenerNombreEmbarcacion(trabajador) }}
+
+            </td>
+            <td v-for="dia in diasDelMes" :key="dia" class="px-1 py-1 text-center">
               <span
                 class="inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-bold border"
                 :class="getEstiloAsistencia(obtenerAsistencia(trabajador, dia))"
@@ -187,35 +172,26 @@ const irPagina = (pagina) => {
       <!-- Leyenda -->
       <div class="flex flex-wrap gap-6 mt-6 text-sm font-medium text-gray-700">
         <div class="flex items-center gap-2">
-          <span
-            class="w-4 h-4 rounded-full bg-green-100 border border-green-400"
-          ></span>
+          <span class="w-4 h-4 rounded-full bg-green-100 border border-green-400"></span>
           Descanso (D)
         </div>
         <div class="flex items-center gap-2">
-          <span
-            class="w-4 h-4 rounded-full bg-blue-100 border border-blue-400"
-          ></span>
+          <span class="w-4 h-4 rounded-full bg-blue-100 border border-blue-400"></span>
           Trabajo (TR)
         </div>
         <div class="flex items-center gap-2">
-          <span
-            class="w-4 h-4 rounded-full bg-yellow-100 border border-yellow-400"
-          ></span>
+          <span class="w-4 h-4 rounded-full bg-yellow-100 border border-yellow-400"></span>
           Licencia (L)
         </div>
         <div class="flex items-center gap-2">
-          <span
-            class="w-4 h-4 rounded-full bg-red-100 border border-red-400"
-          ></span>
+          <span class="w-4 h-4 rounded-full bg-red-100 border border-red-400"></span>
           Falta (F)
         </div>
       </div>
     </div>
 
-    <!-- 📌 Paginación -->
+    <!-- Paginación -->
     <div class="mt-8 flex justify-center items-center space-x-1 text-sm sm:text-base font-medium">
-      <!-- Botón Anterior -->
       <button
         @click="irPagina(currentPage - 1)"
         :disabled="currentPage === 1"
@@ -224,11 +200,10 @@ const irPagina = (pagina) => {
         <span class="mr-1">⬅️</span> Anterior
       </button>
 
-      <!-- Páginas -->
       <template v-for="page in totalPages" :key="page">
         <button
           @click="irPagina(page)"
-          :class="[ 
+          :class="[
             'px-3 py-1.5 rounded-md transition min-w-[2.5rem]',
             page === currentPage
               ? 'bg-blue-600 text-white shadow-md'
@@ -239,7 +214,7 @@ const irPagina = (pagina) => {
         </button>
       </template>
 
-      <!-- Botón Siguiente -->
+            <!-- Botón Siguiente -->
       <button
         @click="irPagina(currentPage + 1)"
         :disabled="currentPage === totalPages"
@@ -249,6 +224,6 @@ const irPagina = (pagina) => {
       </button>
     </div>
     <!-- Fin Paginación -->
-
   </div>
 </template>
+

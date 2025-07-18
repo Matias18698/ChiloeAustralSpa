@@ -7,7 +7,6 @@ import QrScanner from 'qr-scanner'
 // Props
 const props = defineProps({
   trabajadores: Array,
-  embarcaciones: Array
 })
 
 // Fecha actual (zona horaria Chile)
@@ -16,7 +15,6 @@ const chileDate = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sa
 // Formulario Inertia
 const form = useForm({
   trabajador_id: '',
-  embarcacion_id: '',
   fecha: chileDate,
   tipo_asistencia: 'TR'
 })
@@ -38,7 +36,7 @@ const normalizeRut = rut => rut.replace(/\./g, '').replace('-', '').toLowerCase(
 // Mostrar alerta
 const mostrarAlerta = (mensaje, tipo = 'success') => {
   alerta.value = { mensaje, tipo, visible: true }
-  setTimeout(() => (alerta.value.visible = false), 4000)
+  setTimeout(() => (alerta.value.visible = false), 10000)
 }
 
 // Escáner detecta un resultado
@@ -56,7 +54,7 @@ const setResult = ({ data }) => {
     form.trabajador_id = trabajador.id
     trabajadorSeleccionado.value = trabajador
     trabajadorNombre.value = trabajador.nombre
-    mostrarAlerta(`✅ ${trabajador.nombre} escaneado con éxito`)
+    mostrarAlerta(`Trabajador ${trabajador.nombre} ${trabajador.apellido} escaneado con éxito ✅`)
     showScanBox.value = false
     stopScanner()
   } else {
@@ -67,7 +65,14 @@ const setResult = ({ data }) => {
 // Iniciar escáner
 const startScanner = async () => {
   try {
-    await scanner.value?.start()
+    if (!scanner.value) {
+      scanner.value = new QrScanner(video.value, setResult, {
+        highlightScanRegion: true,
+        highlightCodeOutline: true
+      })
+      await changeCamera()
+    }
+    await scanner.value.start()
   } catch (error) {
     console.error('Error al iniciar el escáner:', error)
     mostrarAlerta('Error al acceder a la cámara', 'error')
@@ -88,20 +93,37 @@ const changeCamera = async () => {
   }
 }
 
-// Reiniciar proceso de escaneo
-const reiniciarEscaneo = () => {
+const reiniciarEscaneo = async () => {
   form.trabajador_id = ''
   trabajadorSeleccionado.value = null
   trabajadorNombre.value = ''
   showScanBox.value = true
   alerta.value.visible = false
-  startScanner()
+
+  // Destruir el escáner anterior si existe
+  if (scanner.value) {
+    scanner.value.destroy()
+    scanner.value = null
+  }
+
+  // Pausa breve para asegurar que se libere el recurso
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  // Crear nuevo escáner
+  scanner.value = new QrScanner(video.value, setResult, {
+    highlightScanRegion: true,
+    highlightCodeOutline: true
+  })
+
+  await changeCamera()
+  await startScanner()
 }
+
 
 // Guardar asistencia
 const guardarAsistencia = () => {
-  if (!form.trabajador_id || !form.embarcacion_id) {
-    mostrarAlerta('⚠️ Escanea un trabajador y selecciona una embarcación', 'error')
+  if (!form.trabajador_id) {
+    mostrarAlerta('⚠️ Escanea un trabajador ', 'error')
     return
   }
 
@@ -161,14 +183,6 @@ onBeforeUnmount(() => scanner.value?.destroy())
 
       <!-- Formulario -->
       <form @submit.prevent="guardarAsistencia" class="space-y-4">
-        <!-- Embarcación -->
-        <div>
-          <label class="block font-medium text-sm mb-1">Embarcación</label>
-          <select v-model="form.embarcacion_id" class="w-full border rounded px-2 py-1">
-            <option disabled value="">Selecciona una embarcación</option>
-            <option v-for="e in embarcaciones" :key="e.id" :value="e.id">{{ e.nombre }}</option>
-          </select>
-        </div>
 
         <!-- Reiniciar escaneo -->
         <div v-if="!showScanBox" class="text-sm text-center">
@@ -181,7 +195,7 @@ onBeforeUnmount(() => scanner.value?.destroy())
         <button
           type="submit"
           class="w-full bg-blue-600 text-white py-2 rounded font-semibold disabled:bg-gray-300"
-          :disabled="isSubmitting || !form.trabajador_id || !form.embarcacion_id"
+          :disabled="isSubmitting || !form.trabajador_id" 
         >
           {{ isSubmitting ? 'Guardando...' : 'Guardar Asistencia' }}
         </button>

@@ -4,13 +4,13 @@ import AppMain from '@/Layouts/AppMain.vue';
 import { usePage } from '@inertiajs/vue3';
 
 // Obtener el trabajador desde los props
-const { trabajador } = usePage().props;
+const { trabajador, embarcaciones } = usePage().props;
 
 // Crear el formulario con Inertia.js y los valores iniciales del trabajador
 const form = useForm({
     nombre: trabajador.nombre,
-    apellido: trabajador.apellido, // Campo nuevo
-    avatar: null,
+    apellido: trabajador.apellido, 
+    avatar: trabajador.avatar,
     rut: trabajador.rut,
     fecha_nacimiento: trabajador.fecha_nacimiento,
     estado_civil: trabajador.estado_civil,
@@ -25,6 +25,10 @@ const form = useForm({
     tipo_contrato: trabajador.tipo_contrato,
     sueldo_real: trabajador.sueldo_real,
     sueldo_liquidacion: trabajador.sueldo_liquidacion,
+    embarcacion_id: trabajador.embarcacion_id, 
+
+
+    id: trabajador.id, // Agregar ID del trabajador para la actualización
 });
 
 // Función para enviar el formulario
@@ -93,10 +97,28 @@ const onSelectAvatar = (event) => {
                                 <label for="nacionalidad" class="block text-sm font-medium text-black">Nacionalidad</label>
                                 <input type="text" id="nacionalidad" v-model="form.nacionalidad" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black"/>
                             </div>
+                            
+                            
+                                <div>
+                                <label for="embarcacion_id" class="block text-sm font-medium text-black">Embarcación</label>
+                                <select
+                                    id="embarcacion_id"
+                                    v-model="form.embarcacion_id"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black"
+                                >
+                                    <option value="">Sin asignar</option>
+                                    <option v-for="embarcacion in embarcaciones" :key="embarcacion.id" :value="embarcacion.id">
+                                    {{ embarcacion.nombre }}
+                                    </option>
+                                </select>
+                                </div>
+
+                                
                             <div>
                                 <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
                                 <input type="file" id="avatar" @change="onSelectAvatar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black" accept="image/*"/>
                             </div>
+                            
                         </div>
                     </div>
 

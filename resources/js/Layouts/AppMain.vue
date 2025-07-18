@@ -38,6 +38,7 @@
     <Head :title="title" />
     
     <nav class="fixed z-50 min-w-full bg-blue-900 border-black border-b-1 shadow-md">
+        
         <!-- Primary Navigation Menu -->
         <div class="flex justify-between h-12">
             <div class="shrink-0 flex items-center w-52">
@@ -50,7 +51,7 @@
                 <div class="flex items-center">
                     <button
                         @click="showingNavigationDropdown = !showingNavigationDropdown"
-                        class="inline-flex items-center justify-center rounded-md p-2 text-blue-400 hover:bg-white hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition"
+                        class="inline-flex items-center justify-center rounded-md p-2 text-white hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition"
                         aria-label="Abrir menú de navegación"
                         :aria-expanded="showingNavigationDropdown.toString()"
                         aria-controls="mobile-menu"
@@ -70,12 +71,49 @@
                     </button>
                     <div class="ml-2 sm:hidden ">
                         <span class="text-lg font-semibold text-white text-center">Chiloé Austral</span>
-                    </div>
-                    
+                    </div>  
                 </div>
             </div>
-        </div>
-    </nav>
+            <!--Dropdown -->
+             <Dropdown align="right" width="48">
+                <template #trigger>
+                <button
+                type="button"
+                class="inline-flex items-center rounded-md bg-blue-900 px-4 py-2 text-base font-medium text-white hover:bg-blue-800 focus:outline-none transition-all duration-300"
+                >
+                {{ $page.props.auth.user.name }}
+                <svg class="ms-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+                </button>
+            </template>
+
+            <template #content>
+                <div class="rounded-md shadow-lg bg-blue-900 ring-1 ring-black ring-opacity-5 text-white w-48">
+                <DropdownLink
+                    :href="route('profile.edit')"
+                    class="block px-4 py-2 text-sm hover:bg-blue-800 cursor-pointer"
+                >
+                    <svg class="inline-block mr-2 w-5 h-5 text-blue-400" viewBox="0 0 20 20"><path d="M5 3a2 2..." /></svg>
+                    Perfil
+                </DropdownLink>
+                <DropdownLink
+                    :href="route('logout')"
+                    method="post"
+                    as="button"
+                    class="block px-4 py-2 text-sm text-red-500 hover:bg-red-700 hover:text-white cursor-pointer"
+                >
+                    <svg class="inline-block mr-2 w-5 h-5 text-red-400" viewBox="0 0 20 20"><path d="M3 10a1 1..." /></svg>
+                    Cerrar sesión
+                </DropdownLink>
+                </div>
+            </template>
+            </Dropdown>
+
+
+    </div>
+  </nav>
 
     <aside class="fixed top-0 z-40 h-screen bg-white transition-all duration-300 border-r border-gray-200" :class="{'w-52 left-0 sm:w-10 sm:left-0': showingNavigationDropdown, 'w-52 -left-52 sm:w-52 sm:left-0': ! showingNavigationDropdown }">
         <div class="flex flex-col h-full pt-14">

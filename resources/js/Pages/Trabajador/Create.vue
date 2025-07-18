@@ -24,10 +24,11 @@ const form = useForm({
     tipo_contrato: '',
     sueldo_real: '',
     sueldo_liquidacion: '',
-    embarcacion_id: null, // ahora opcional
+    embarcacion_id: null,
 });
 
 const submit = () => {
+  
       // Si no se seleccionó embarcación, eliminamos el campo del form
   if (!form.embarcacion_id) {
     delete form.embarcacion_id
@@ -78,7 +79,7 @@ const onSelectAvatar = (event) => {
               </div>
               <div>
                 <label for="rut" class="block text-sm font-medium text-black">RUT</label>
-                <input type="text" id="rut" v-model="form.rut" required class="input" :class="{'border-red-500': form.errors.rut}" />
+                <input type="text" id="rut" v-model="form.rut" required class="input"  placeholder="11.111.111-1" :class="{'border-red-500': form.errors.rut}" />
                 <p v-if="form.errors.rut" class="text-red-600 text-sm mt-1">{{ form.errors.rut }}</p>
               </div>
               <div>
@@ -104,7 +105,7 @@ const onSelectAvatar = (event) => {
                 <input type="file" id="avatar" @change="onSelectAvatar" class="input" accept="image/*" />
               </div>
               <div>
-                <label for="embarcacion_id" class="block text-sm font-medium text-black">Embarcación</label>
+                <label for="embarcacion_id" class="block text-sm font-medium text-black">Embarcación </label>
                 <select id="embarcacion_id" v-model="form.embarcacion_id" class="input">
                   <option value="">Sin asignar</option>
                   <option v-for="embarcacion in embarcaciones" :key="embarcacion.id" :value="embarcacion.id">

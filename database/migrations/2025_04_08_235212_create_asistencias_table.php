@@ -16,7 +16,6 @@ class CreateAsistenciasTable extends Migration
         Schema::create('asistencias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('trabajador_id')->constrained('trabajadores')->onDelete('cascade');
-            $table->foreignId('embarcacion_id')->constrained('embarcaciones')->onDelete('cascade');
             $table->date('fecha');
             $table->enum('tipo_asistencia', ['D', 'TR', 'L', 'F']);
             $table->timestamps();

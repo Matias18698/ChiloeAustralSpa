@@ -22,7 +22,7 @@ Route::get('/', function () {
     return redirect('/Inicio');
 });
 //ruta para el cron de asistencias
-Route::get('/Asistencias/cron', [AsistenciaController::class, 'AsistenciaCron'])->name('asistencia.cron'); // NUEVA
+Route::get('/Asistencias/cron', [AsistenciaController::class, 'AsistenciaCron'])->name('asistencia.cron'); 
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
@@ -70,6 +70,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [AsistenciaController::class, 'index'])->name('index');
         Route::get('create', [AsistenciaController::class, 'create'])->name('create');
         Route::get('manual', [AsistenciaController::class, 'manual'])->name('manual'); // NUEVA
+        Route::get('bajada', [AsistenciaController::class, 'bajada'])->name('bajada'); // NUEVA
+
         Route::post('/', [AsistenciaController::class, 'store'])->name('store');
         Route::get('{asistencia}', [AsistenciaController::class, 'show'])->name('show');
         Route::get('{asistencia}/edit', [AsistenciaController::class, 'edit'])->name('edit');

@@ -11,7 +11,7 @@ class Asistencia extends Model
 
     protected $table = 'asistencias'; // Nombre de la tabla en la base de datos
 
-    protected $fillable = ['trabajador_id','embarcacion_id', 'fecha', 'tipo_asistencia'];
+    protected $fillable = ['trabajador_id', 'fecha', 'tipo_asistencia'];
 
     /**
      * Relación: Una asistencia pertenece a un trabajador.
@@ -21,13 +21,6 @@ class Asistencia extends Model
         return $this->belongsTo(Trabajador::class, 'trabajador_id', 'id');
     }
 
-    /**
-     * Relación: Una asistencia pertenece a una embarcación.
-     */
-    public function embarcacion()
-    {
-        return $this->belongsTo(Trabajador::class, 'embarcacion_id', 'id');
-    }
 
 
 

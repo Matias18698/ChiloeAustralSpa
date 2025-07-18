@@ -85,7 +85,8 @@ public function store(Request $request)
     public function edit(Trabajador $trabajador)
     {
         return Inertia::render('Trabajador/Edit', [
-            'trabajador' => $trabajador
+            'trabajador' => $trabajador,
+            'embarcaciones' => Embarcacion::all(), // Pasar embarcaciones para el formulario
         ]);
     }
 
