@@ -135,7 +135,6 @@ const onSelectAvatar = async (event) => {
               <div>
                 <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
                 <input type="file" id="avatar" @change="onSelectAvatar" class="input" accept="image/*" />
-                
                 <!-- Vista previa del avatar --> 
               <div v-if="previewUrl" class="mt-4 justify-center items-center">
                 <img :src="previewUrl" alt="Vista previa del avatar" class="w-32 h-32 object-cover rounded-full" />

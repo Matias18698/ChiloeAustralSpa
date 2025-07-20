@@ -16,7 +16,7 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Profile" />
+    <Head title="Mi Perfil" />
 
     <AppMain>
         <template #header>

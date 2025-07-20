@@ -45,8 +45,6 @@ const submit = () => {
     centro: 'El centro es obligatorio.',
     embarcacion_id: 'Debe seleccionar una embarcación.',
     trabajador_id: 'Debe seleccionar un encargado de faena.',
-    hora_inicial: 'La hora inicial es obligatoria.',
-    hora_final: 'La hora final es obligatoria.',
     actividades_am: 'Debe ingresar las actividades AM.',
     actividades_pm: 'Debe ingresar las actividades PM.',
     total_jaulas: 'Debe ingresar el total de jaulas.',
@@ -59,14 +57,6 @@ const submit = () => {
     }
   }
 
-  // Validar cambio en hora
-  if (form.hora_inicial !== horaInicialOriginal.value && !form.hora_inicial) {
-    form.errors.hora_inicial = 'Debe ingresar nuevamente la hora inicial.'
-  }
-
-  if (form.hora_final !== horaFinalOriginal.value && !form.hora_final) {
-    form.errors.hora_final = 'Debe ingresar nuevamente la hora final.'
-  }
 
   // Verifica errores antes de enviar
   if (Object.keys(form.errors).length > 0) return
@@ -161,9 +151,6 @@ const submit = () => {
                   </div>
                 </div>
               </div>
-
-
-
           <!-- Horarios -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -224,7 +211,6 @@ const submit = () => {
                 />
               </div>
           </div>
-
           <!-- Botón -->
           <div class="pt-4">
             <button 

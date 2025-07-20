@@ -143,14 +143,15 @@ class BitacoraController extends Controller
      */
 public function update(Request $request, Bitacora $bitacora)
 {
-    $validated = $this->validateBitacora($request);
+    $validated = $this->validateBitacoraEdit($request);
 
     // Procesar la firma si se envió
     if ($request->filled('firma_encargado') && Str::startsWith($request->firma_encargado, 'data:image')) {
         $image = str_replace('data:image/png;base64,', '', $request->firma_encargado);
         $image = str_replace(' ', '+', $image);
         $imageData = base64_decode($image);
-
+        
+    // Generar nombre único y guardar
         $imageName = 'firmas/' . Str::uuid() . '.png';
         Storage::disk('public')->put($imageName, $imageData);
 
@@ -219,6 +220,29 @@ public function documento($id)
     ]);
 }
 
+    private function validateBitacoraEdit(Request $request)
+    {
+        return $request->validate([
+            'fecha' => 'required|date',
+            'zona' => 'nullable|string',
+            'centro' => 'nullable|string',
+            'numero_boleta' => 'nullable|string',
+            'embarcacion_id' => 'required|exists:embarcaciones,id',
+            'trabajador_id' => 'required|exists:trabajadores,id',
+            'actividades_am' => 'nullable|string',
+            'actividades_pm' => 'nullable|string',
+            'firma_encargado' => 'nullable|string', // Ruta a la imagen de la firma
+            'observaciones' => 'nullable|string',
+            'total_jaulas' => 'nullable|integer|min:0',
+            'dimension_jaulas' => 'nullable|string',
+            // Validación para los buzos
+            'buzo_1_id' => 'nullable|exists:trabajadores,id',
+            'buzo_2_id' => 'nullable|exists:trabajadores,id',   
+            'buzo_3_id' => 'nullable|exists:trabajadores,id',
+            'buzo_4_id' => 'nullable|exists:trabajadores,id',
+            'buzo_5_id' => 'nullable|exists:trabajadores,id',
+        ]);
+    }
 
 
 }

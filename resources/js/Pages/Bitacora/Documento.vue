@@ -9,7 +9,7 @@
       <div class="flex justify-end mb-2">
         <button
           @click="exportarPDF"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
+          class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow"
           type="button"
         >
           Exportar PDF

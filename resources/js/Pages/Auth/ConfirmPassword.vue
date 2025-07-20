@@ -19,7 +19,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
+        <Head title="Confirmar Contraseña" />
 
         <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Confirme su contraseña antes de continuar.

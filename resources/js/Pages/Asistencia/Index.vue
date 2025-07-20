@@ -95,7 +95,7 @@ const redirectToBajadaAsistencia = () => router.visit(route('asistencia.bajada')
                 @click="redirectToBajadaAsistencia"
                 class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md px-4 py-2 font-medium shadow-md transition-all"
               >
-                📥 Crear Descanso
+                📥 Crear Bajada
               </button>
             </div>
           </div>

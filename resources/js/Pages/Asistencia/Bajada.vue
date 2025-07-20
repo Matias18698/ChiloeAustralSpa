@@ -160,10 +160,10 @@ onMounted(async () => {
 onBeforeUnmount(() => scanner.value?.destroy())
 </script>
 <template>
-  <Head title="Registrar Asistencia" />
+  <Head title="Registrar Bajada" />
   <AppMain>
     <div class="max-w-xl mx-auto p-6 bg-white shadow rounded mt-10 space-y-6">
-      <h1 class="text-xl font-bold">Registrar Asistencia</h1>
+      <h1 class="text-xl font-bold">Registrar Bajada</h1>
 
       <!-- Alerta -->
       <div v-if="alerta.visible" :class="[

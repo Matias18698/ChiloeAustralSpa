@@ -31,7 +31,7 @@ const submit = () => {
   <AppMain>
     <div class="w-full bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen p-6">
       <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg border border-blue-200">
-        <h2 class="text-2xl font-bold text-blue-800 mb-8">✏️ Editar Usuario</h2>
+        <h2 class="text-2xl font-bold text-blue-800 mb-8"> Editar Usuario</h2>
 
         <form @submit.prevent="submit" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

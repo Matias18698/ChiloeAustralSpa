@@ -43,11 +43,35 @@ const submit = () => {
 };
 
 // Función para manejar el avatar
-const onSelectAvatar = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.avatar = file;
-    }
+const onSelectAvatar = async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  try {
+    // Opciones para la compresión
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 300, // Tamaño máximo
+      useWebWorker: true,
+    };
+
+    // Comprimir la imagen
+    const compressedFile = await imageCompression(file, options);
+
+    // Asignar el archivo comprimido al formulario
+    form.avatar = compressedFile;
+
+    // Crear URL para la vista previa
+    previewUrl.value = URL.createObjectURL(compressedFile);
+
+    // Opcional: para ver el tamaño original y el comprimido
+    console.log(`Original: ${file.size / 1024} KB`);
+    console.log(`Comprimido: ${compressedFile.size / 1024} KB`);
+    
+  } catch (error) {
+    console.error('Error al comprimir imagen:', error);
+  }
 };
 </script>
 <template>
@@ -113,12 +137,14 @@ const onSelectAvatar = (event) => {
                                 </select>
                                 </div>
 
+                                <!-- Sección: Avatar -->
+                                <div>
+                                    <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
+                                    <input type="file" id="avatar" @change="onSelectAvatar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black" accept="image/*"/>
+
                                 
-                            <div>
-                                <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
-                                <input type="file" id="avatar" @change="onSelectAvatar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black" accept="image/*"/>
-                            </div>
-                            
+                                </div>
+
                         </div>
                     </div>
 

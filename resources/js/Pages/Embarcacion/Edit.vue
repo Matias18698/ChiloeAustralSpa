@@ -28,7 +28,7 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Editar embarcación" />
+    <Head title="Editar Embarcación" />
 
     <AppMain>
         <div class="w-full bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen p-6">

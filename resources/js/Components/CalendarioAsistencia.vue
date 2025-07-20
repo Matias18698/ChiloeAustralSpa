@@ -11,6 +11,9 @@ const props = defineProps({
   año: Number,
 });
 
+// Estado del buscador
+const searchQuery = ref('');
+
 // Utilidad: rellenar con ceros
 const pad = (n) => n.toString().padStart(2, '0');
 
@@ -95,6 +98,19 @@ const trabajadoresVisibles = computed(() =>
   exportandoPDF.value ? props.trabajadores : trabajadoresPaginados.value
 );
 
+// Filtrar trabajadores por nombre o embarcación
+const trabajadoresFiltrados = computed(() => {
+  if (!searchQuery.value) return props.trabajadores;
+
+  const queryLowerCase = searchQuery.value.toLowerCase();
+  return props.trabajadores.filter(trabajador => {
+    const nombreCompleto = `${trabajador.nombre} ${trabajador.apellido || ''}`.toLowerCase();
+    const embarcacion = obtenerNombreEmbarcacion(trabajador).toLowerCase();
+    return nombreCompleto.includes(queryLowerCase) || embarcacion.includes(queryLowerCase);
+  });
+});
+
+// Navegar entre páginas
 const irPagina = (pagina) => {
   if (pagina >= 1 && pagina <= totalPages.value) {
     currentPage.value = pagina;
@@ -105,12 +121,7 @@ const obtenerNombreEmbarcacion = (trabajador) => {
   const embarcacion = props.embarcaciones.find(e => e.id === trabajador.embarcacion_id);
   return embarcacion?.nombre || 'Sin asignar';
 };
-
-
-
-
 </script>
-
 
 <template>
   <div class="p-4 space-y-6 overflow-auto">
@@ -126,6 +137,16 @@ const obtenerNombreEmbarcacion = (trabajador) => {
         📄 Exportar PDF
       </button>
     </div>
+    <!-- Buscador -->
+<div class="flex justify-between items-center mb-4 w-80">
+  <input
+    v-model="searchQuery"
+    type="text"
+    placeholder="Buscar por nombre o embarcación..."
+    class="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
 
     <!-- Tabla calendario -->
     <div id="calendario-pdf" class="overflow-x-auto rounded-xl shadow ring-1 ring-blue-200 bg-white p-4">
@@ -142,7 +163,7 @@ const obtenerNombreEmbarcacion = (trabajador) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="trabajador in trabajadoresVisibles" :key="trabajador.id" class="hover:bg-blue-50 transition-colors">
+          <tr v-for="trabajador in trabajadoresFiltrados" :key="trabajador.id" class="hover:bg-blue-50 transition-colors">
             <td class="px-4 py-2 text-gray-600 font-semibold whitespace-nowrap">
               {{ trabajador.nombre }} {{ trabajador.apellido || '' }}
             </td>
@@ -151,7 +172,6 @@ const obtenerNombreEmbarcacion = (trabajador) => {
             </td>
             <td class="px-4 py-2 text-gray-600 whitespace-nowrap">
               {{ obtenerNombreEmbarcacion(trabajador) }}
-
             </td>
             <td v-for="dia in diasDelMes" :key="dia" class="px-1 py-1 text-center">
               <span
@@ -213,8 +233,7 @@ const obtenerNombreEmbarcacion = (trabajador) => {
           {{ page }}
         </button>
       </template>
-
-            <!-- Botón Siguiente -->
+      <!-- Botón Siguiente -->
       <button
         @click="irPagina(currentPage + 1)"
         :disabled="currentPage === totalPages"
@@ -223,7 +242,5 @@ const obtenerNombreEmbarcacion = (trabajador) => {
         Siguiente <span class="ml-1">➡️</span>
       </button>
     </div>
-    <!-- Fin Paginación -->
   </div>
 </template>
-

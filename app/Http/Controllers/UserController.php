@@ -20,6 +20,7 @@ class UserController extends Controller
     {
         return Inertia::render('User/Create', [
             'roles' => Role::pluck('name'),
+            
         ]);
     }
 
@@ -111,6 +112,7 @@ class UserController extends Controller
     public function index(): Response
     {
         $users = User::with('roles')->get();
+        
 
         return Inertia::render('User/Index', [
             'users' => $users,
