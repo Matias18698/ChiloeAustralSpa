@@ -1,6 +1,8 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
 import AppMain from '@/Layouts/AppMain.vue';
+import imageCompression from 'browser-image-compression';
+
 
 const props = defineProps({
     embarcaciones: Array,
@@ -44,12 +46,42 @@ const submit = () => {
   });
 };
 
-const onSelectAvatar = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.avatar = file;
-    }
+import { ref } from 'vue';
+
+const previewUrl = ref(null);
+
+const onSelectAvatar = async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  try {
+    // Opciones para la compresión
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 300, // Tamaño máximo
+      useWebWorker: true,
+    };
+
+    // Comprimir la imagen
+    const compressedFile = await imageCompression(file, options);
+
+    // Asignar el archivo comprimido al formulario
+    form.avatar = compressedFile;
+
+    // Crear URL para la vista previa
+    previewUrl.value = URL.createObjectURL(compressedFile);
+
+    // Opcional: para ver el tamaño original y el comprimido
+    console.log(`Original: ${file.size / 1024} KB`);
+    console.log(`Comprimido: ${compressedFile.size / 1024} KB`);
+    
+  } catch (error) {
+    console.error('Error al comprimir imagen:', error);
+  }
 };
+
+
 </script>
 
 <template>
@@ -103,6 +135,11 @@ const onSelectAvatar = (event) => {
               <div>
                 <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
                 <input type="file" id="avatar" @change="onSelectAvatar" class="input" accept="image/*" />
+                
+                <!-- Vista previa del avatar --> 
+              <div v-if="previewUrl" class="mt-4 justify-center items-center">
+                <img :src="previewUrl" alt="Vista previa del avatar" class="w-32 h-32 object-cover rounded-full" />
+              </div>
               </div>
               <div>
                 <label for="embarcacion_id" class="block text-sm font-medium text-black">Embarcación </label>
