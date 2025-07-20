@@ -2,7 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import AppMain from '@/Layouts/AppMain.vue';
 import { usePage } from '@inertiajs/vue3';
-
+import imageCompression from 'browser-image-compression';
 // Obtener el trabajador desde los props
 const { trabajador, embarcaciones } = usePage().props;
 
@@ -45,7 +45,6 @@ const submit = () => {
 // Función para manejar el avatar
 const onSelectAvatar = async (event) => {
   const file = event.target.files[0];
-
   if (!file) return;
 
   try {
@@ -62,7 +61,7 @@ const onSelectAvatar = async (event) => {
     // Asignar el archivo comprimido al formulario
     form.avatar = compressedFile;
 
-    // Crear URL para la vista previa
+    // Crear URL para la vista previa (si se requiere)
     previewUrl.value = URL.createObjectURL(compressedFile);
 
     // Opcional: para ver el tamaño original y el comprimido
@@ -73,6 +72,7 @@ const onSelectAvatar = async (event) => {
     console.error('Error al comprimir imagen:', error);
   }
 };
+
 </script>
 <template>
     <Head title="Editar trabajador" />
@@ -136,14 +136,13 @@ const onSelectAvatar = async (event) => {
                                     </option>
                                 </select>
                                 </div>
+                                 <!-- Sección: Avatar -->
+                            <div>
+                                <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
+                                <input type="file" id="avatar" @change="onSelectAvatar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black" accept="image/*"/>
 
-                                <!-- Sección: Avatar -->
-                                <div>
-                                    <label for="avatar" class="block text-sm font-medium text-black">Avatar</label>
-                                    <input type="file" id="avatar" @change="onSelectAvatar" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-black" accept="image/*"/>
-
+                            </div>
                                 
-                                </div>
 
                         </div>
                     </div>

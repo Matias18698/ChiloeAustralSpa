@@ -106,7 +106,6 @@ public function store(Request $request)
         // Actualizar el trabajador con los nuevos datos
         $trabajador->update($data);
     
-        // Resto del código...
     }
     
 
