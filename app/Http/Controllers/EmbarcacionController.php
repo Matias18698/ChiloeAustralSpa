@@ -38,6 +38,7 @@ class EmbarcacionController extends Controller
 
     function gps($imei)
     {
+        // Token de seguridad para la API
         $Token = 'a92514bc-3205-47f4-9890-ba7b4fc85bd7';
         $response = Http::asForm()->post('https://login.tecsat.cl/WS/WStrack2.asmx/GetCurrentPositionByIMEI', [
             'SecurityToken' => $Token,
