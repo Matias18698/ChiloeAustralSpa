@@ -40,8 +40,6 @@ FROM php:8.3-fpm-alpine
 # Instalar Nginx y otras herramientas necesarias
 RUN apk add --no-cache nginx bash curl
 
-# Crear usuario y grupo www-data si no existen
-RUN addgroup -S www-data && adduser -S www-data -G www-data
 
 # Crear directorio de trabajo
 WORKDIR /var/www
