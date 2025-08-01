@@ -3,6 +3,7 @@ import AppMain from '@/Layouts/AppMain.vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
+
 const page = usePage();
 const trabajadoresData = page.props.trabajadores || [];
 
@@ -14,13 +15,14 @@ const showModal = ref(false);
 const trabajadorSeleccionado = ref(null);
 
 // Procesamiento de datos
-const trabajadores = computed(() =>
+const trabajadores = ref(
   trabajadoresData.map(({ id, nombre, apellido, cargo, telefono, avatar, rut, fecha_nacimiento, estado_civil, nacionalidad, direccion, comuna, email, afp, tamaño_ropa, tipo_contrato, sueldo_real, sueldo_liquidacion }) => ({
     id, nombre, apellido, cargo, telefono, avatar, rut,
-    fecha_nacimiento, estado_civil, nacionalidad, direccion, comuna, embarcacion_id: null, // Asignar null si no hay embarcación
+    fecha_nacimiento, estado_civil, nacionalidad, direccion, comuna, embarcacion_id: null,
     email, afp, tamaño_ropa, tipo_contrato, sueldo_real, sueldo_liquidacion
   }))
 );
+
 
 const trabajadoresFiltrados = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
@@ -53,10 +55,18 @@ const closeModal = () => {
 const handleDelete = (id) => {
   if (confirm('¿Estás seguro de eliminar a este trabajador?')) {
     router.delete(route('trabajador.destroy', id), {
-      onError: error => console.error('Error al eliminar:', error),
+      preserveScroll: true,
+      onSuccess: () => {
+        trabajadores.value = trabajadores.value.filter(t => t.id !== id);
+      },
+      onError: error => {
+        console.error('Error al eliminar:', error);
+        alert('Error al eliminar el trabajador.');
+      },
     });
   }
 };
+
 
 const redirectToCreate = () => {
   router.visit(route('trabajador.create'));

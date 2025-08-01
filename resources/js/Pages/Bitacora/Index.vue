@@ -1,10 +1,10 @@
 <script setup>
 import AppMain from '@/Layouts/AppMain.vue';
 import { Head, usePage, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = usePage().props;
-const rawBitacoras = computed(() => props.bitacoras.data || []);
+const rawBitacoras = ref(props.bitacoras.data || []);
 
 const bitacoras = computed(() =>
   rawBitacoras.value.map(b => ({
@@ -36,18 +36,15 @@ const filteredBitacoras = computed(() => {
   return bitacoras.value.filter(b => {
     const centro = (b.centro || '').toString().toLowerCase();
     const filtroCentro = (searchQuery.value.centro || '').toString().toLowerCase();
-    const matchCentro =
-      filtroCentro === '' || centro.includes(filtroCentro);
+    const matchCentro = filtroCentro === '' || centro.includes(filtroCentro);
 
     const embarcacion = (b.nombre_embarcacion || '').toString().toLowerCase();
     const filtroEmbarcacion = (searchQuery.value.embarcacion || '').toString().toLowerCase();
-    const matchEmbarcacion =
-      filtroEmbarcacion === '' || embarcacion.includes(filtroEmbarcacion);
+    const matchEmbarcacion = filtroEmbarcacion === '' || embarcacion.includes(filtroEmbarcacion);
 
     const numeroBoleta = (b.numero_boleta || '').toString().toLowerCase();
     const filtroNumeroBoleta = (searchQuery.value.numero_boleta || '').toString().toLowerCase();
-    const matchNumeroBoleta =
-      filtroNumeroBoleta === '' || numeroBoleta.includes(filtroNumeroBoleta);
+    const matchNumeroBoleta = filtroNumeroBoleta === '' || numeroBoleta.includes(filtroNumeroBoleta);
 
     const fechaBitacora = b.fecha ? b.fecha.split('T')[0] : '';
     const fechaDesde = searchQuery.value.fechaDesde;
@@ -59,23 +56,6 @@ const filteredBitacoras = computed(() => {
     return matchCentro && matchEmbarcacion && matchNumeroBoleta && matchFechaDesde && matchFechaHasta;
   });
 });
-const handleDelete = (id) => {
-  if (confirm('¿Estás seguro de eliminar esta bitácora?')) {
-    router.delete(route('bitacora.destroy', id), {
-      onError: (errors) => console.error('Error al eliminar:', errors),
-    });
-  }
-};
-
-const redirectToCreate = () => {
-  router.visit(route('bitacora.create'));
-};
-
-const formatDate = (fecha) => {
-  if (!fecha) return '';
-  const [year, month, day] = fecha.split('T')[0].split('-');
-  return `${day}/${month}/${year}`;
-};
 
 // Paginación
 const currentPage = ref(1);
@@ -93,6 +73,35 @@ const goToPage = (page) => {
   }
 };
 
+// Resetear página cuando cambian filtros para no quedar en página inválida
+watch(searchQuery, () => {
+  currentPage.value = 1;
+}, { deep: true });
+
+const handleDelete = (id) => {
+  if (confirm('¿Estás seguro de que quieres eliminar esta bitácora?')) {
+    router.delete(route('bitacora.destroy', id), {
+      preserveScroll: true,
+      onSuccess: () => {
+        rawBitacoras.value = rawBitacoras.value.filter(b => b.id !== id);
+      },
+      onError: (error) => {
+        alert('Error al eliminar: ' + (error.message || 'Intenta de nuevo.'));
+      }
+    });
+  }
+};
+
+const redirectToCreate = () => {
+  router.visit(route('bitacora.create'));
+};
+
+const formatDate = (fecha) => {
+  if (!fecha) return '';
+  const [year, month, day] = fecha.split('T')[0].split('-');
+  return `${day}/${month}/${year}`;
+};
+
 // Limpiar filtros
 const clearFilters = () => {
   searchQuery.value = {
@@ -104,10 +113,12 @@ const clearFilters = () => {
   };
 };
 </script>
+
 <template>
   <Head title="Bitácoras" />
   <AppMain>
-    <div class="max-w-screen-xl mx-auto px-4 py-6">
+    <div class="w-full mx-auto px-6 py-3">
+
       <!-- Título y botón -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h2 class="text-2xl sm:text-3xl font-bold text-blue-800">Lista de Bitácoras</h2>
@@ -120,7 +131,7 @@ const clearFilters = () => {
       </div>
 
       <!-- Filtros -->
-       <div class="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
         <div class="flex flex-col flex-1 min-w-0">
           <label class="mb-1 font-semibold text-gray-700">Centro</label>
@@ -255,28 +266,7 @@ const clearFilters = () => {
     </div>
   </AppMain>
 </template>
+
 <style scoped>
-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-  transition: box-shadow 0.2s ease-in-out;
-}
-
-table {
-  scrollbar-width: thin;
-  scrollbar-color: #a0aec0 #edf2f7;
-}
-
-table::-webkit-scrollbar {
-  height: 6px;
-}
-
-table::-webkit-scrollbar-track {
-  background: #edf2f7;
-}
-
-table::-webkit-scrollbar-thumb {
-  background-color: #a0aec0;
-  border-radius: 3px;
-}
+/* Aquí podrías agregar estilos específicos si quieres */
 </style>

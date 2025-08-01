@@ -19,9 +19,9 @@ const errores = ref({
 const paginaActual = ref(1);
 const itemsPorPagina = 10;
 
-const rawGastos = computed(() =>
-  Array.isArray(props.gastos) ? props.gastos : props.gastos?.data ?? []
-);
+const rawGastos = ref(Array.isArray(props.gastos) ? props.gastos : props.gastos?.data ?? []);
+
+
 
 const gastos = computed(() =>
   rawGastos.value.map(g => ({
@@ -146,9 +146,21 @@ const editGasto = (id) => {
 
 const handleDelete = (id) => {
   if (confirm('¿Estás seguro de eliminar este gasto?')) {
-    router.delete(route('gastos.destroy', id));
+    router.delete(route('gastos.destroy', id), {
+      preserveScroll: true,
+      onSuccess: () => {
+        // Actualiza manualmente la lista local
+        const updated = [...rawGastos.value].filter(g => g.id !== id);
+        rawGastos.value = updated;
+      },
+      onError: () => {
+        alert('Error al eliminar el gasto.');
+      }
+    });
   }
 };
+
+
 
 const estadoClass = (estado) => {
   switch (estado?.toLowerCase()) {

@@ -6,10 +6,10 @@ import MapView from '@/Components/MapView.vue';
 
 // Props desde el backend
 const { props } = usePage();
-const embarcacionesRaw = props.embarcaciones || [];
+const embarcacionesRaw = ref(props.embarcaciones || []);
 
 const embarcaciones = computed(() =>
-  embarcacionesRaw.map(({ id, nombre, tipo, patente, capacidad, estado, latitud, longitud, lon, lat }) => ({
+  embarcacionesRaw.value.map(({ id, nombre, tipo, patente, capacidad, estado, latitud, longitud, lon, lat }) => ({
     id, nombre, tipo, patente, capacidad, estado, latitud, longitud, lon, lat
   }))
 );
@@ -39,13 +39,17 @@ const handleDeleteEmbarcacion = (id) => {
   if (confirm('¿Estás seguro de que quieres eliminar esta embarcación?')) {
     router.delete(route('embarcacion.destroy', id), {
       preserveScroll: true,
-      onSuccess: () => router.reload({ preserveScroll: true }),
+      onSuccess: () => {
+        embarcacionesRaw.value = embarcacionesRaw.value.filter(e => e.id !== id);
+        // También puedes usar un toast o alerta de éxito aquí
+      },
       onError: (error) => {
         alert('Error al eliminar: ' + (error.message || 'Intenta de nuevo.'));
       }
     });
   }
 };
+
 // GPS
 const isValidCoordinate = (value) =>
   value !== null && value !== undefined && !isNaN(Number(value));

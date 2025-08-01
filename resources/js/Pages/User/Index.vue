@@ -33,10 +33,23 @@ const goToPage = (page) => {
   }
 }
 
+import { Inertia } from '@inertiajs/inertia'
+
 const eliminarUsuario = (user) => {
-  // Aquí agregar la lógica para eliminar el usuario
-  console.log('Eliminando usuario', user)
+  if (confirm(`¿Seguro que deseas eliminar al usuario "${user.name}"? Esta acción no se puede deshacer.`)) {
+    Inertia.delete(route('usuarios.destroy', user.id), {
+      onSuccess: () => {
+        // Opcional: mostrar un mensaje o actualizar estado
+        console.log('Usuario eliminado correctamente')
+      },
+      onError: (errors) => {
+        console.error('Error al eliminar usuario:', errors)
+        alert('Ocurrió un error al eliminar el usuario.')
+      }
+    })
+  }
 }
+
 </script>
 
 <template>
